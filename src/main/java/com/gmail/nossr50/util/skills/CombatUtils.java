@@ -514,8 +514,7 @@ public final class CombatUtils {
         }
 
         if (unarmedManager.canUseBerserk()) {
-            boostedDamage += (unarmedManager.berserkDamage(boostedDamage, attackStrengthScale)
-                    * attackStrengthScale);
+            boostedDamage += unarmedManager.berserkDamage(boostedDamage, attackStrengthScale);
         }
 
         if (unarmedManager.canDisarm(target)) {
