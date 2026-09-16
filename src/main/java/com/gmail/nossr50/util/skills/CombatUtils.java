@@ -1310,6 +1310,6 @@ public final class CombatUtils {
      */
     public static void delayArrowMetaCleanup(@NotNull AbstractArrow arrow) {
         mcMMO.p.getFoliaLib().getScheduler()
-                .runLater(() -> ProjectileUtils.cleanupProjectileMetadata(arrow), 20 * 120);
+                .runAtEntityLater(arrow, () -> ProjectileUtils.cleanupProjectileMetadata(arrow), 20 * 120);
     }
 }

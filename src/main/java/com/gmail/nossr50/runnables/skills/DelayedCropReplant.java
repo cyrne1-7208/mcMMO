@@ -60,7 +60,7 @@ public class DelayedCropReplant extends CancellableRunnable {
                         new markPlantAsOld(blockBreakEvent.getBlock().getLocation()), 10);
 
         if (blockBreakEvent.isCancelled()) {
-            wasImmaturePlant = true;
+            return;
         }
 
         if (blockIsAirOrExpectedCrop(blockState)) {

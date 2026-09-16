@@ -1011,7 +1011,7 @@ public class PlayerListener implements Listener {
 
                 HerbalismManager herbalismManager = mmoPlayer.getHerbalismManager();
 
-                if (!event.isCancelled() || event.useInteractedBlock() != Event.Result.DENY) {
+                if (!event.isCancelled() && event.useInteractedBlock() != Event.Result.DENY) {
                     if (herbalismManager.canGreenThumbBlock(blockState)) {
                         //call event for Green Thumb Block
                         if (!EventUtils.callSubSkillBlockEvent(player,
