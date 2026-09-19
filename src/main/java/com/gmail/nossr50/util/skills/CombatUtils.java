@@ -487,7 +487,8 @@ public final class CombatUtils {
         printFinalDamageDebug(player, event, mmoPlayer, attackStrengthScale);
     }
 
-    private static void processUnarmedCombat(@NotNull LivingEntity target, @NotNull Player player,
+    @VisibleForTesting
+    static void processUnarmedCombat(@NotNull LivingEntity target, @NotNull Player player,
             @NotNull EntityDamageByEntityEvent event, double attackStrengthScale) {
         if (event.getCause() == DamageCause.THORNS) {
             return;
@@ -514,8 +515,7 @@ public final class CombatUtils {
         }
 
         if (unarmedManager.canUseBerserk()) {
-            boostedDamage += (unarmedManager.berserkDamage(boostedDamage, attackStrengthScale)
-                    * attackStrengthScale);
+            boostedDamage += unarmedManager.berserkDamage(boostedDamage, attackStrengthScale);
         }
 
         if (unarmedManager.canDisarm(target)) {

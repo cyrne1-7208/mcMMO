@@ -15,8 +15,10 @@ import com.gmail.nossr50.api.exceptions.InvalidSkillException;
 import com.gmail.nossr50.config.PersistentDataConfig;
 import com.gmail.nossr50.datatypes.meta.HealthbarSnapshot;
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
+import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
+import com.gmail.nossr50.skills.unarmed.UnarmedManager;
 import com.gmail.nossr50.util.AttributeMapper;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.gmail.nossr50.util.MobMetadataUtils;
@@ -28,6 +30,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -602,6 +605,34 @@ class CombatUtilsTest extends MMOTestEnvironment {
                     LivingEntity.class);
             method.setAccessible(true);
             return (double) method.invoke(null, target);
+        }
+    }
+
+    @Nested
+    class ProcessUnarmedCombat {
+
+        @ParameterizedTest(name = "damage={0}, scale={1} -> expectedDamage={2}")
+        @CsvSource({
+                "10.0, 1.0, 15.0",  // full charge: 10.0 * 1.5 * 1.0 = 15.0
+                "10.0, 0.5, 7.5",   // half charge: 10.0 * 1.5 * 0.5 = 7.5 (would fail with 8.75 on unpatched code)
+                "10.0, 0.0, 0.0",   // zero charge: 10.0 * 1.5 * 0.0 = 0.0 (would fail with 10.0 on unpatched code)
+        })
+        void berserkBonusShouldScaleLinearlyWithAttackStrength(
+                double baseDamage, double attackStrengthScale, double expectedDamage) {
+            // Given - unarmed punch with Berserk active
+            final EntityDamageByEntityEvent event = Mockito.mock(EntityDamageByEntityEvent.class);
+            when(event.getDamage()).thenReturn(baseDamage);
+            when(event.getCause()).thenReturn(EntityDamageEvent.DamageCause.ENTITY_ATTACK);
+
+            final UnarmedManager unarmedManager = new UnarmedManager(mmoPlayer);
+            when(mmoPlayer.getUnarmedManager()).thenReturn(unarmedManager);
+            Mockito.doReturn(true).when(mmoPlayer).getAbilityMode(SuperAbilityType.BERSERK);
+
+            // When - unarmed combat is processed
+            CombatUtils.processUnarmedCombat(mock(Player.class), player, event, attackStrengthScale);
+
+            // Then - event damage is set to the correctly scaled berserk damage without double scaling
+            verify(event).setDamage(expectedDamage);
         }
     }
 }
