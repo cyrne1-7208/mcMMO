@@ -306,7 +306,7 @@ public class BlockListener implements Listener {
      *
      * @param event The event to watch
      */
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         final Block block = event.getBlock();
 
